@@ -12,7 +12,7 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
     console.log('[Service Worker] Fetching something ...', event);
     // event.respondWith(null); //zwróci null więc strona padnie ;)
-    event.respondWith(fetch(event.request)); //zwróci niezmienione dane
+    event.respondWith(fetch(event.request)); //zwróci niezmienione dane na tą chwilę
 });
 
 
