@@ -1,4 +1,4 @@
-let CACHE_STATIC_NAME = 'static-v4';
+let CACHE_STATIC_NAME = 'static-v6';
 let CACHE_DYNAMIC_NAME = 'dynamic-v2'
 
 //lifecycle events
@@ -50,8 +50,7 @@ self.addEventListener('fetch', (event) => {
                 .then((respone) => {
                     return caches.open(CACHE_DYNAMIC_NAME)
                         .then((cache) => {
-                            cache.put(event.request.url, respone.clone()); //put nie w przeciwnieństwie do add nie wysyła requesta i automatycznie zachowuje parę klucz-wartość 
-                            //resposne jest konsumowana jednorazowo i dalej jest pust więc dlatego musi być użyta metoda .clone() żeby zapisać do cache i jeszce móć zwrócić response.
+                            // cache.put(event.request.url, respone.clone());
                             return respone;
                         });
                 });
