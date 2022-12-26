@@ -9,7 +9,10 @@ let defferedPrompt;
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', function () {
         navigator.serviceWorker.register('/sw.js')
-            .then(() => console.log('service worker registered !'));
+            .then(() => console.log('service worker registered !'))
+            .catch((err) => {
+                console.log(err);
+            });
     });
 }
 
