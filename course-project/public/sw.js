@@ -41,27 +41,34 @@ self.addEventListener('activate', (event) => {
 });
 
 //non-lifecycle events
+// self.addEventListener('fetch', (event) => {
+//     //zapisanie do cache'a dynamicznie danych które zostały pobrane z sieci
+//     event.respondWith(caches.match(event.request).then((respone) => {
+//         if (respone) {
+//             return respone;
+//         } else {
+//             return fetch(event.request)
+//                 .then((respone) => {
+//                     return caches.open(CACHE_DYNAMIC_NAME)
+//                         .then((cache) => {
+//                             cache.put(event.request.url, respone.clone());
+//                             return respone;
+//                         });
+//                 }).catch((err) => {
+//                     return caches.open(CACHE_STATIC_NAME)
+//                         .then((cache) => {
+//                             return cache.match('/offline.html');
+//                         });
+//                 });
+//         }
+//     }));
+// });
+
+//network first then cache fallback
 self.addEventListener('fetch', (event) => {
-    //zapisanie do cache'a dynamicznie danych które zostały pobrane z sieci
-    event.respondWith(caches.match(event.request).then((respone) => {
-        if (respone) {
-            return respone;
-        } else {
-            return fetch(event.request)
-                .then((respone) => {
-                    return caches.open(CACHE_DYNAMIC_NAME)
-                        .then((cache) => {
-                            cache.put(event.request.url, respone.clone());
-                            return respone;
-                        });
-                }).catch((err) => {
-                    return caches.open(CACHE_STATIC_NAME)
-                        .then((cache) => {
-                            return cache.match('/offline.html');
-                        });
-                });
-        }
-    }));
+    event.respondWith(
+        fetch(event.request)
+            .catch((err) => caches.match(event.request)));
 });
 
 
