@@ -1,4 +1,4 @@
-let CACHE_STATIC_NAME = 'static-v10';
+let CACHE_STATIC_NAME = 'static-v13';
 let CACHE_DYNAMIC_NAME = 'dynamic-v2'
 
 //lifecycle events
@@ -40,7 +40,7 @@ self.addEventListener('activate', (event) => {
     return self.clients.claim();
 });
 
-//non-lifecycle events
+//cache then network
 // self.addEventListener('fetch', (event) => {
 //     //zapisanie do cache'a dynamicznie danych które zostały pobrane z sieci
 //     event.respondWith(caches.match(event.request).then((respone) => {
@@ -64,12 +64,26 @@ self.addEventListener('activate', (event) => {
 //     }));
 // });
 
-//network first then cache fallback
 self.addEventListener('fetch', (event) => {
     event.respondWith(
-        fetch(event.request)
-            .catch((err) => caches.match(event.request)));
+        caches.open(CACHE_DYNAMIC_NAME)
+            .then((cache) => {
+                return fetch(event.request)
+                    .then((res) => {
+                        cache.put(event.request, res.clone());
+
+                        return res;
+                    })
+            })
+    )
 });
+
+// //network first then cache fallback
+// self.addEventListener('fetch', (event) => {
+//     event.respondWith(
+//         fetch(event.request)
+//             .catch((err) => caches.match(event.request)));
+// });
 
 
 

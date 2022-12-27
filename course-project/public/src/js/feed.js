@@ -45,6 +45,12 @@ closeCreatePostModalButton.addEventListener('click', closeCreatePostModal);
 //   };
 // }
 
+const clearCards = () => {
+  while (sharedMomentsArea.hasChildNodes()) {
+    sharedMomentsArea.removeChild(sharedMomentsArea.lastChild);
+  }
+}
+
 function createCard() {
   const cardWrapper = document.createElement('div');
   cardWrapper.className = 'shared-moment-card mdl-card mdl-shadow--2dp';
@@ -71,10 +77,32 @@ function createCard() {
   sharedMomentsArea.appendChild(cardWrapper);
 }
 
-fetch('https://httpbin.org/get')
+const url = 'https://httpbin.org/get';
+let networkDataReceived = false;
+
+fetch(url)
   .then(function (res) {
     return res.json();
   })
   .then(function (data) {
+    networkDataReceived = true;
+    console.log('from web: ', data);
+    clearCards();
     createCard();
   });
+
+if ('caches' in window) {
+  caches.match(url)
+    .then((response) => {
+      if (response) {
+        return response.json();
+      }
+    }).then((data) => {
+      console.log('from cache: ', data);
+      if (!networkDataReceived) {
+        clearCards();
+        createCard();
+
+      }
+    })
+};
