@@ -65,17 +65,43 @@ self.addEventListener('activate', (event) => {
 // });
 
 self.addEventListener('fetch', (event) => {
-    event.respondWith(
-        caches.open(CACHE_DYNAMIC_NAME)
-            .then((cache) => {
-                return fetch(event.request)
-                    .then((res) => {
-                        cache.put(event.request, res.clone());
+    const url = 'https://httpbin.org/get';
 
-                        return res;
-                    })
-            })
-    )
+    if (event.request.url.indexOf(url) > -1) {
+        event.respondWith(
+            caches.open(CACHE_DYNAMIC_NAME)
+                .then((cache) => {
+                    return fetch(event.request)
+                        .then((res) => {
+                            cache.put(event.request, res.clone());
+
+                            return res;
+                        })
+                })
+        )
+    } else {
+        event.respondWith(
+            caches.match(event.request)
+                .then((respone) => {
+                    if (respone) {
+                        return respone;
+                    } else {
+                        return fetch(event.request)
+                            .then((respone) => {
+                                return caches.open(CACHE_DYNAMIC_NAME)
+                                    .then((cache) => {
+                                        cache.put(event.request.url, respone.clone());
+                                        return respone;
+                                    });
+                            }).catch((err) => {
+                                return caches.open(CACHE_STATIC_NAME)
+                                    .then((cache) => {
+                                        return cache.match('/offline.html');
+                                    });
+                            });
+                    }
+                }));
+    }
 });
 
 // //network first then cache fallback
