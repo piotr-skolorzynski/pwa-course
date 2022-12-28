@@ -15,20 +15,20 @@ const STATIC_FILES = [
     "https://cdnjs.cloudflare.com/ajax/libs/material-design-lite/1.3.0/material.indigo-pink.min.css"
 ]
 
-//function to trim the cache what means some data ca be missing
-const trimCache = (cacheName, maxItems) => {
-    caches.open(cacheName)
-        .then((cache) => {
-            return cache.keys()
-                .then((keys) => {
-                    if (keys.length > maxItems) {
-                        cache.delete(keys[0])
-                            .then(trimCache(cacheName, maxItems));
-                    }
-                });
-        });
+// //function to trim the cache what means some data ca be missing
+// const trimCache = (cacheName, maxItems) => {
+//     caches.open(cacheName)
+//         .then((cache) => {
+//             return cache.keys()
+//                 .then((keys) => {
+//                     if (keys.length > maxItems) {
+//                         cache.delete(keys[0])
+//                             .then(trimCache(cacheName, maxItems));
+//                     }
+//                 });
+//         });
 
-}
+// }
 
 self.addEventListener('install', (event) => {
     console.log('[Service Worker]: Installing Service Worker ..', event);
@@ -75,7 +75,7 @@ self.addEventListener('fetch', (event) => {
                 .then((cache) => {
                     return fetch(event.request)
                         .then((res) => {
-                            trimCache(CACHE_DYNAMIC_NAME, 6);
+                            // trimCache(CACHE_DYNAMIC_NAME, 6);
                             cache.put(event.request, res.clone());
 
                             return res;
@@ -96,7 +96,7 @@ self.addEventListener('fetch', (event) => {
                             .then((respone) => {
                                 return caches.open(CACHE_DYNAMIC_NAME)
                                     .then((cache) => {
-                                        trimCache(CACHE_DYNAMIC_NAME, 6);
+                                        // trimCache(CACHE_DYNAMIC_NAME, 6);
                                         cache.put(event.request.url, respone.clone());
 
                                         return respone;
