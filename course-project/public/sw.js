@@ -15,7 +15,6 @@ const STATIC_FILES = [
     "https://cdnjs.cloudflare.com/ajax/libs/material-design-lite/1.3.0/material.indigo-pink.min.css"
 ]
 
-//lifecycle events
 self.addEventListener('install', (event) => {
     console.log('[Service Worker]: Installing Service Worker ..', event);
 
@@ -41,29 +40,15 @@ self.addEventListener('activate', (event) => {
     return self.clients.claim();
 });
 
-//cache then network
-// self.addEventListener('fetch', (event) => {
-//     //zapisanie do cache'a dynamicznie danych które zostały pobrane z sieci
-//     event.respondWith(caches.match(event.request).then((respone) => {
-//         if (respone) {
-//             return respone;
-//         } else {
-//             return fetch(event.request)
-//                 .then((respone) => {
-//                     return caches.open(CACHE_DYNAMIC_NAME)
-//                         .then((cache) => {
-//                             cache.put(event.request.url, respone.clone());
-//                             return respone;
-//                         });
-//                 }).catch((err) => {
-//                     return caches.open(CACHE_STATIC_NAME)
-//                         .then((cache) => {
-//                             return cache.match('/offline.html');
-//                         });
-//                 });
-//         }
-//     }));
-// });
+const isInArray = (string, array) => {
+    for (let i = 0; i < array.length; i++) {
+        if (array[i] === string) {
+            return true;
+        }
+
+        return false;
+    }
+}
 
 self.addEventListener('fetch', (event) => {
     const url = 'https://httpbin.org/get';
@@ -80,7 +65,7 @@ self.addEventListener('fetch', (event) => {
                         })
                 })
         )
-    } else if (new RegExp('\\b' + STATIC_FILES.join('\\b|\\b') + '\\b').test(event.request.url)) {
+    } else if (isInArray(event.request.url, STATIC_FILES)) {
         event.respondWith(
             caches.match(event.request));
     } else {
@@ -109,13 +94,3 @@ self.addEventListener('fetch', (event) => {
                 }));
     }
 });
-
-// //network first then cache fallback
-// self.addEventListener('fetch', (event) => {
-//     event.respondWith(
-//         fetch(event.request)
-//             .catch((err) => caches.match(event.request)));
-// });
-
-
-
