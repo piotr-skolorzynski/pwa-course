@@ -1,4 +1,6 @@
-let CACHE_STATIC_NAME = 'static-v13';
+importScripts('/src/js/idb.js');
+
+let CACHE_STATIC_NAME = 'static-v16';
 let CACHE_DYNAMIC_NAME = 'dynamic-v2'
 const STATIC_FILES = [
     '/',
@@ -6,6 +8,7 @@ const STATIC_FILES = [
     '/offline.html',
     'src/js/app.js',
     'src/js/feed.js',
+    'src/js/idb.js',
     'src/js/material.min.js',
     'src/css/app.css',
     'src/css/feed.css',
@@ -14,6 +17,15 @@ const STATIC_FILES = [
     "https://fonts.googleapis.com/icon?family=Material+Icons",
     "https://cdnjs.cloudflare.com/ajax/libs/material-design-lite/1.3.0/material.indigo-pink.min.css"
 ]
+
+//working with indexedDb
+const dbPromise = idb.open('posts-store', 1, (db) => {
+    //to avoid creating objectStore each time this promise is fired it is wrapped in if statement
+    if (!db.objectStoreNames.contains('posts')) {
+        db.createObjectStore('posts', { keyPath: 'id' });
+    };
+
+});
 
 // //function to trim the cache what means some data ca be missing
 // const trimCache = (cacheName, maxItems) => {
@@ -71,15 +83,25 @@ self.addEventListener('fetch', (event) => {
 
     if (event.request.url.indexOf(url) > -1) {
         event.respondWith(
-            caches.open(CACHE_DYNAMIC_NAME)
-                .then((cache) => {
-                    return fetch(event.request)
-                        .then((res) => {
-                            // trimCache(CACHE_DYNAMIC_NAME, 6);
-                            cache.put(event.request, res.clone());
+            fetch(event.request)
+                .then((res) => {
+                    //we also want to store response in indexedDB instead using cache as prevoiusly
+                    //Remember response can be use once that is why we use clone method
+                    const clonedResponse = res.clone();
+                    clonedResponse.json()
+                        .then((data) => {
+                            for (let key in data) {
+                                dbPromise.then((db) => {
+                                    const transaction = db.transaction('posts', 'readwrite');
+                                    const store = transaction.objectStore('posts');
+                                    store.put(data[key]);
 
-                            return res;
-                        })
+                                    return transaction.complete;
+                                })
+                            };
+                        });
+
+                    return res;
                 })
         )
     } else if (isInArray(event.request.url, STATIC_FILES)) {
