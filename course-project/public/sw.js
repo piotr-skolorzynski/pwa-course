@@ -1,7 +1,7 @@
 importScripts('/src/js/idb.js');
 importScripts('/src/js/utility.js');
 
-let CACHE_STATIC_NAME = 'static-v17';
+let CACHE_STATIC_NAME = 'static-v18';
 let CACHE_DYNAMIC_NAME = 'dynamic-v2'
 const STATIC_FILES = [
     '/',
@@ -81,12 +81,13 @@ self.addEventListener('fetch', (event) => {
                     //we also want to store response in indexedDB instead using cache as prevoiusly
                     //Remember response can be use once that is why we use clone method
                     const clonedResponse = res.clone();
-                    clonedResponse.json()
-                        .then((data) => {
-                            for (let key in data) {
-                                writeData('posts', data[key]);
-                            };
-                        });
+                    clearAllData('posts').then(() => { //before putting data to indexedDB we delete all data that already exists to provide consistency
+                        return clonedResponse.json();
+                    }).then((data) => {
+                        for (let key in data) {
+                            writeData('posts', data[key]);
+                        };
+                    });
 
                     return res;
                 })

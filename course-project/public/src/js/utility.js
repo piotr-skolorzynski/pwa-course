@@ -26,3 +26,14 @@ const readAllData = (storeName) => {
         return store.getAll();
     });
 };
+
+//clear data 
+const clearAllData = (storeName) => {
+    return dbPromise.then((db) => {
+        const transaction = db.transaction(storeName, 'readwrite');
+        const store = transaction.objectStore(storeName);
+        store.clear(); //deletes all data 
+
+        return transaction.complete;
+    });
+};
