@@ -67,7 +67,7 @@ function isInArray(string, array) {
 }
 
 self.addEventListener('fetch', (event) => {
-    const url = 'https://httpbin.org/get';
+    const url = 'https://pwa-course-96187-default-rtdb.europe-west1.firebasedatabase.app/posts';
 
     if (event.request.url.indexOf(url) > -1) {
         event.respondWith(

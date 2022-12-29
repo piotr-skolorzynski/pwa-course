@@ -24,16 +24,6 @@ function openCreatePostModal() {
       defferedPrompt = null;
     });
   }
-
-  // //how to unregister service workers
-  // if ('serviceWorker' in navigator) {
-  //   navigator.serviceWorker.getRegistrations()
-  //     .then((registrations) => {
-  //       for (let i = 0; i < registrations.length; i++) {
-  //         registrations[i].unregister();
-  //       }
-  //     })
-  // }
 }
 
 function closeCreatePostModal() {
@@ -61,22 +51,22 @@ const clearCards = () => {
   }
 }
 
-function createCard() {
+function createCard(data) {
   const cardWrapper = document.createElement('div');
   cardWrapper.className = 'shared-moment-card mdl-card mdl-shadow--2dp';
   const cardTitle = document.createElement('div');
   cardTitle.className = 'mdl-card__title';
-  cardTitle.style.backgroundImage = 'url("/src/images/sf-boat.jpg")';
+  cardTitle.style.backgroundImage = `url(${data.image})`;
   cardTitle.style.backgroundSize = 'cover';
   cardTitle.style.height = '180px';
   cardWrapper.appendChild(cardTitle);
   const cardTitleTextElement = document.createElement('h2');
   cardTitleTextElement.className = 'mdl-card__title-text';
-  cardTitleTextElement.textContent = 'San Francisco Trip';
+  cardTitleTextElement.textContent = data.tile;
   cardTitle.appendChild(cardTitleTextElement);
   const cardSupportingText = document.createElement('div');
   cardSupportingText.className = 'mdl-card__supporting-text';
-  cardSupportingText.textContent = 'In San Francisco';
+  cardSupportingText.textContent = data.location;
   cardSupportingText.style.textAlign = 'center';
   // const cardSaveButton = document.createElement('button');
   // cardSaveButton.textContent = 'Save';
@@ -87,7 +77,23 @@ function createCard() {
   sharedMomentsArea.appendChild(cardWrapper);
 }
 
-const url = 'https://httpbin.org/get';
+const createDataArray = (data) => {
+  let dataArray = [];
+  for (let key in data) {
+    dataArray.push(data[key]);
+  };
+
+  return dataArray;
+}
+
+const updateUI = (dataArray) => {
+  clearCards();
+  dataArray.map((data) => {
+    return createCard(data);
+  });
+};
+
+const url = 'https://pwa-course-96187-default-rtdb.europe-west1.firebasedatabase.app/posts.json';
 let networkDataReceived = false;
 
 fetch(url)
@@ -97,8 +103,8 @@ fetch(url)
   .then(function (data) {
     networkDataReceived = true;
     console.log('from web: ', data);
-    clearCards();
-    createCard();
+    const dataArray = createDataArray(data);
+    updateUI(dataArray);
   });
 
 if ('caches' in window) {
@@ -110,9 +116,8 @@ if ('caches' in window) {
     }).then((data) => {
       console.log('from cache: ', data);
       if (!networkDataReceived) {
-        clearCards();
-        createCard();
-
+        const dataArray = createDataArray(data);
+        updateUI(dataArray);
       }
     })
 };
