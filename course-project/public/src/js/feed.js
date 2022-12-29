@@ -106,17 +106,13 @@ fetch(url)
     updateUI(dataArray);
   });
 
-if ('caches' in window) {
-  caches.match(url)
-    .then((response) => {
-      if (response) {
-        return response.json();
-      }
-    }).then((data) => {
-      console.log('from cache: ', data);
+if ('indexedDB' in window) {
+  readAllData('posts')
+    .then((data) => {
       if (!networkDataReceived) {
-        const dataArray = createDataArray(data);
-        updateUI(dataArray);
+        console.log('From cache: ', data);
+        updateUI(data);
       }
-    })
+    });
+
 };

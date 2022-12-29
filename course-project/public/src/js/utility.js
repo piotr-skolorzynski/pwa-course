@@ -6,6 +6,7 @@ const dbPromise = idb.open('posts-store', 1, (db) => {
 
 });
 
+//put
 const writeData = (storeName, data) => {
     return dbPromise.then((db) => {
         const transaction = db.transaction(storeName, 'readwrite');
@@ -13,5 +14,15 @@ const writeData = (storeName, data) => {
         store.put(data);
 
         return transaction.complete;
+    });
+};
+
+//get all data 
+const readAllData = (storeName) => {
+    return dbPromise.then((db) => {
+        const transaction = db.transaction(storeName, 'readonly');
+        const store = transaction.objectStore(storeName);
+
+        return store.getAll();
     });
 };
