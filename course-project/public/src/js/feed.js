@@ -76,7 +76,6 @@ function createCard(data) {
   componentHandler.upgradeElement(cardWrapper);
   sharedMomentsArea.appendChild(cardWrapper);
 }
-
 const createDataArray = (data) => {
   let dataArray = [];
   for (let key in data) {

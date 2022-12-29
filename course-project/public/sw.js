@@ -1,4 +1,5 @@
 importScripts('/src/js/idb.js');
+importScripts('/src/js/utility.js');
 
 let CACHE_STATIC_NAME = 'static-v16';
 let CACHE_DYNAMIC_NAME = 'dynamic-v2'
@@ -9,6 +10,7 @@ const STATIC_FILES = [
     'src/js/app.js',
     'src/js/feed.js',
     'src/js/idb.js',
+    'src/js/utility.js',
     'src/js/material.min.js',
     'src/css/app.css',
     'src/css/feed.css',
@@ -17,15 +19,6 @@ const STATIC_FILES = [
     "https://fonts.googleapis.com/icon?family=Material+Icons",
     "https://cdnjs.cloudflare.com/ajax/libs/material-design-lite/1.3.0/material.indigo-pink.min.css"
 ]
-
-//working with indexedDb
-const dbPromise = idb.open('posts-store', 1, (db) => {
-    //to avoid creating objectStore each time this promise is fired it is wrapped in if statement
-    if (!db.objectStoreNames.contains('posts')) {
-        db.createObjectStore('posts', { keyPath: 'id' });
-    };
-
-});
 
 // //function to trim the cache what means some data ca be missing
 // const trimCache = (cacheName, maxItems) => {
@@ -91,13 +84,7 @@ self.addEventListener('fetch', (event) => {
                     clonedResponse.json()
                         .then((data) => {
                             for (let key in data) {
-                                dbPromise.then((db) => {
-                                    const transaction = db.transaction('posts', 'readwrite');
-                                    const store = transaction.objectStore('posts');
-                                    store.put(data[key]);
-
-                                    return transaction.complete;
-                                })
+                                writeData('posts', data[key]);
                             };
                         });
 
