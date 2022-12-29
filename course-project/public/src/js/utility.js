@@ -8,7 +8,7 @@ const dbPromise = idb.open('posts-store', 1, (db) => {
 
 //put
 const writeData = (storeName, data) => {
-    return dbPromise.then((db) => {
+    dbPromise.then((db) => {
         const transaction = db.transaction(storeName, 'readwrite');
         const store = transaction.objectStore(storeName);
         store.put(data);
@@ -19,7 +19,7 @@ const writeData = (storeName, data) => {
 
 //get all data 
 const readAllData = (storeName) => {
-    return dbPromise.then((db) => {
+    dbPromise.then((db) => {
         const transaction = db.transaction(storeName, 'readonly');
         const store = transaction.objectStore(storeName);
 
@@ -27,12 +27,23 @@ const readAllData = (storeName) => {
     });
 };
 
-//clear data 
+//clear all data 
 const clearAllData = (storeName) => {
-    return dbPromise.then((db) => {
+    dbPromise.then((db) => {
         const transaction = db.transaction(storeName, 'readwrite');
         const store = transaction.objectStore(storeName);
         store.clear(); //deletes all data 
+
+        return transaction.complete;
+    });
+};
+
+//delete particular element from database
+const deleteItemFromData = (storeName, id) => {
+    dbPromise.then((db) => {
+        const transaction = db.transaction(storeName, 'readwrite');
+        const store = transaction.objectStore(storeName);
+        store.delete(id);
 
         return transaction.complete;
     });
