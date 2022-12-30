@@ -79,7 +79,7 @@ self.addEventListener('fetch', (event) => {
             fetch(event.request)
                 .then((res) => {
                     //we also want to store response in indexedDB instead using cache as prevoiusly
-                    //Remember response can be use once that is why we use clone method
+                    //Remember response can be used once that is why we use clone method
                     const clonedResponse = res.clone();
                     clearAllData('posts').then(() => { //before putting data to indexedDB we delete all data that already exists to provide consistency
                         return clonedResponse.json();
@@ -91,7 +91,7 @@ self.addEventListener('fetch', (event) => {
 
                     return res;
                 })
-        )
+        );
     } else if (isInArray(event.request.url, STATIC_FILES)) {
         event.respondWith(
             caches.match(event.request));
@@ -122,4 +122,43 @@ self.addEventListener('fetch', (event) => {
                     }
                 }));
     }
+});
+
+self.addEventListener('sync', (event) => {
+    console.log('[Service Worker]: ', event);
+
+    if (event.tag === 'sync-new-posts') {
+        console.log('[Service Worker]: Syncing new Posts!');
+
+        event.waitUntil(
+            readAllData('sync-posts')
+                .then((data) => {
+                    data.forEach((item) => {
+                        fetch('https://pwa-course-96187-default-rtdb.europe-west1.firebasedatabase.app/posts.json', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'Application/json'
+                            },
+                            body: JSON.stringify({
+                                id: item.id,
+                                title: item.title,
+                                location: item.location,
+                                image: 'https://firebasestorage.googleapis.com/v0/b/pwa-course-96187.appspot.com/o/sf-boat.jpg?alt=media&token=77736d0f-b1f5-42e5-a1b8-6382e4d66588'
+                            })
+                        })
+                            .then((res) => {
+                                console.log('Sent data: ', res);
+
+                                if (res.ok) {
+                                    deleteItemFromData('sync-post', item.id);
+                                }
+                            })
+                            .catch((err) => {
+                                console.log('Error while sending data!', err);
+                            })
+                    })
+                })
+        );
+    };
 });

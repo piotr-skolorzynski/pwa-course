@@ -163,7 +163,7 @@ form.addEventListener('submit', (event) => {
 
         writeData('sync-posts', post) //storing data in indexedDB
           .then(() => {
-            return sw.sync.register('sync-new-post'); //any name of task tag, register if successfully data was stored
+            return sw.sync.register('sync-new-posts'); //any name of task tag, register if successfully data was stored
           })
           .then(() => {
             const snackbarContainer = document.querySelector('#confirmation-toast'); //catch reference to toast on main page
