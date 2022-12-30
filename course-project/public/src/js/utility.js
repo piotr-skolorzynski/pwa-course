@@ -4,6 +4,10 @@ const dbPromise = idb.open('posts-store', 1, (db) => {
         db.createObjectStore('posts', { keyPath: 'id' });
     };
 
+    if (!db.objectStoreNames.contains('sync-posts')) {
+        db.createObjectStore('sync-posts', { keyPath: 'id' });
+    };
+
 });
 
 //put

@@ -131,4 +131,28 @@ form.addEventListener('submit', (event) => {
 
   closeCreatePostModal();
 
+  //standard chcecking if broweser supports service workers and synchronisation manager
+  if ('serviceWorker' in navigator && 'SyncManager' in window) {
+    navigator.serviceWorker.ready
+      .then((sw) => {
+        const post = {
+          id: new Date().toISOString(),
+          title: titleInput.value,
+          location: locationInput.value
+        }
+
+        writeData('sync-posts', post) //storing data in indexedDB
+          .then(() => {
+            return sw.sync.register('sync-new-post'); //any name of task tag, register if successfully data was stored
+          })
+          .then(() => {
+            const snackbarContainer = document.querySelector('#confirmation-toast'); //catch reference to toast on main page
+            const toastMessage = { message: 'Your Post was saved for syncing!' }; //message to show in toast
+            snackbarContainer.MaterialSnackbar.showSnackbar(toastMessage); //pass message to toast
+          })
+          .catch((err) => {
+            console.log(err);
+          });
+      });
+  };
 });
