@@ -121,6 +121,26 @@ if ('indexedDB' in window) {
     });
 };
 
+//just sending data to backend
+const sendData = () => {
+  fetch(url, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
+    },
+    body: {
+      id: new Date().toISOString(),
+      title: titleInput.value,
+      location: locationInput.value,
+      image: 'https://firebasestorage.googleapis.com/v0/b/pwa-course-96187.appspot.com/o/sf-boat.jpg?alt=media&token=77736d0f-b1f5-42e5-a1b8-6382e4d66588'
+    }
+  }).then((res) => {
+    console.log('Sent data! ', res);
+    updateUI(); //to reload page and update
+  })
+};
+
 form.addEventListener('submit', (event) => {
   event.preventDefault();
 
@@ -154,5 +174,7 @@ form.addEventListener('submit', (event) => {
             console.log(err);
           });
       });
-  };
+  } else {
+    sendData();
+  }
 });
